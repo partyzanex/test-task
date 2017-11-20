@@ -4,23 +4,19 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
+// код вытащил из своего репозитория https://github.com/partyzanex/golang-test-task/blob/master/conf/conf.go
+// адаптировал немного под задачу
+// можно было через import
+
+// интерфейс для преобразованния типов
 type TypeConvert interface {
 	Int() int
 	String() string
 	Float() float64
 	Bool() bool
-}
-
-func GetEnv(key, fallback string) TypeConvert {
-	var result string
-	var ok bool
-	if result, ok = os.LookupEnv(key); !ok {
-		result = fallback
-	}
-
-	return Value{data: result}
 }
 
 type Value struct {
@@ -106,11 +102,24 @@ func (v Value) Bool() bool {
 		result = v.data.(bool)
 	case "string":
 		b := true
-		if v.data.(string) == "" {
+		if v.data.(string) == "" ||  v.data.(string) == "1" || strings.ToLower(v.data.(string)) != "true" {
 			b = false
 		}
 		result = b
 	}
 
 	return result
+}
+
+// получение значений переменный окружений
+func GetEnv(key, fallback string) TypeConvert {
+	var result string
+	var ok bool
+	// если нет переменной
+	if result, ok = os.LookupEnv(key); !ok {
+		// знаечние по умолчанию
+		result = fallback
+	}
+
+	return Value{data: result}
 }

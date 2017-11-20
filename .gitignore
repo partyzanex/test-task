@@ -1,4 +1,6 @@
 .idea
 glide.lock
 config.ini
+main
+migration
 vendor/*

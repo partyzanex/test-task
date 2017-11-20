@@ -1,31 +1,40 @@
 package model
 
 import (
-	"fmt"
+	_ "github.com/lib/pq"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/jinzhu/gorm"
 
 	"github.com/partyzanex/test-task/config"
-	"github.com/jinzhu/gorm"
 )
 
-var (
-	DBConn *gorm.DB
-)
-
-func GormInit() error {
-	conf := &config.DBConfig{}
-	err := conf.Read()
-	DBConn, err = gorm.Open("postgres",
-		fmt.Sprintf("host=localhost user=%s dbname=%s sslmode=disable password=%s",
-			conf.DBUser, conf.DBName, conf.DBPass))
-	if err != nil {
-		return err
-	}
-	return nil
+// реализация паттерна - singleton
+type DBConnection struct {
+	*gorm.DB
+	Config *config.DBConfig
 }
 
-func GormClose() error {
-	if DBConn != nil {
-		return DBConn.Close()
+var DBConn *DBConnection
+
+// конструктор
+func NewDBConnection() (*DBConnection, error) {
+	// если не подлючено
+	if DBConn == nil {
+		conf, err := config.GetDBConfig("./config.ini")
+		if err != nil {
+			return nil, err
+		}
+
+		c, err := gorm.Open(conf.Dialect, conf.GetDsn())
+		if err != nil {
+			return nil, err
+		}
+
+		DBConn = &DBConnection{
+			DB:     c,
+			Config: conf,
+		}
 	}
-	return nil
+
+	return DBConn, nil
 }

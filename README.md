@@ -6,7 +6,7 @@ cd ./test-task
 cp ./config-sample.ini ./config.ini
 ```
 
-Редактируем ./config ini
+Редактируем ./config.ini
 ```ini
 # настройки бд
 [Database]
@@ -20,7 +20,7 @@ sslmode=disable
 ```
 
 ```bash
-// уставнока миграции
+// миграция бд
 ./migration -tables -data
 ```
 
